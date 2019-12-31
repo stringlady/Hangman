@@ -1,0 +1,212 @@
+/**
+ * Hangman Game.
+ *
+ * Anaya Bussey
+ * v.3
+ */
+import java.util.Scanner;
+public class AnayaHangman {
+    static String answer = "";  
+    static boolean correct = false;
+    
+    //main method
+    public static void main(String[] args) {   
+        testThePhrase();
+        clearScreen();
+        checkGuess();
+        gameOver();
+    }
+  
+    public static void clearScreen() {
+        //The game begins
+        for (int i=1;i<=54;i++){
+            System.out.print("\n");
+        }
+        answer = answer.toLowerCase();  
+    }
+    
+    public static void checkGuess() {
+        int lives = 7;
+        String guessedLetters = "";
+        int len = answer.length();
+        
+        String revealedPhrase="";
+        hangmanPrint(lives);
+        stringSecret(guessedLetters,answer);    
+        //Checks if letter has been guessed already or for any invalid guesses
+        Scanner input= new Scanner(System.in);
+        while (lives>0&&(!correct)){
+            System.out.print("\n\nWhat's your guess?\n");
+            String guess = input.nextLine();
+            guess = guess.toLowerCase();
+      
+            if (guess.equals("")||guess.equals(" ")){
+                for (int i=1;i<=54;i++){
+                    System.out.print("\n");
+                }
+                System.out.print ("**You didn't guess. Please enter a guess.**\n");
+            }
+            else if (!(Character.isLetter(guess.charAt(0)))) {
+                for (int i=1;i<=54;i++){
+                    System.out.print("\n");
+                }
+                System.out.print("**You didn't guess a letter. Please guess a letter.**\n");
+            }
+            else if (guessedLetters.contains(guess)){
+                for (int i=1;i<=54;i++){
+                    System.out.print("\n");
+                }
+                System.out.print ("**You already guessed that letter. Guess again.**\n");
+            }
+            else if (guess.length()>1) { 
+                for (int i=1;i<=54;i++){
+                    System.out.print("\n");
+                }
+                System.out.print ("**Your guess is too long, please print only one letter.**\n");
+            }
+            // Adds letters to the list of already guessed letters
+            else {
+                if (guessedLetters.equals("")){
+                    guessedLetters+=(guess);
+                }
+                else {
+                    guessedLetters+=(", "+ guess);
+                }
+                // Checks if the phrase contains the letter guessed
+                if (!(correct(guess, answer, len))){
+                    lives--;
+                }
+                for (int i=1;i<=39;i++){
+                    System.out.print("\n");
+                }
+            }
+            hangmanPrint(lives);
+            revealedPhrase=stringSecret(guessedLetters,answer);
+            System.out.print ("\nLetters already guessed: "+guessedLetters);
+        
+            if (!(revealedPhrase.contains("_"))){
+                correct = true;
+            }
+        }
+    }
+    
+    public static void gameOver(){
+        //Prints out message if you correctly guessed the secret phrase
+        if (correct){
+            System.out.print ("\n\nCongratulations, you escaped the hangman.");
+        }
+        //Prints out message if you did not correctly guess the secret phrase
+        else {
+            System.out.print ("\n\nSorry, you did not escape the hangman. Better luck next time.");
+            System.out.print("\nThe secret phrase was: "+ answer);
+        } 
+    }
+    
+    public static void testThePhrase() {
+        //Welcomes players 
+        Scanner numOfPlayers = new Scanner(System.in);
+        hangmanPrint(1);
+        System.out.println("Welcome to Hangman! You lose when your head is an 'x'.");
+        System.out.println("Please type s to start.");
+        String playerNumber = numOfPlayers.nextLine();
+        playerNumber = playerNumber.toLowerCase();
+    
+        //Checks if valid selection
+        while (!(playerNumber.equals("s"))){
+            System.out.print("Invalid selection. Please type s to start");
+            playerNumber = numOfPlayers.nextLine();
+            playerNumber = playerNumber.toLowerCase();
+        }
+        
+        //Checks for s typed 
+        if (playerNumber.equals("s")){
+            for (int i=1;i<=54;i++){
+                System.out.print("\n");
+        }
+        Scanner userPhrase = new Scanner(System.in);
+        boolean legalPhrase = false;
+        String testPhrase = "";
+        String secretPhrase = "";
+      
+        while(!legalPhrase){
+            System.out.print("Input a secret phrase: ");
+            secretPhrase="";
+            testPhrase="";
+            secretPhrase = userPhrase.nextLine();
+            for (int i=0; i<secretPhrase.length();i++){
+                if((Character.isLetter(secretPhrase.charAt(i))||secretPhrase.substring(i,i+1).equals(" "))){
+                    testPhrase += secretPhrase.substring(i,i+1);
+                }
+            }
+            if (testPhrase.equals(secretPhrase)){
+                legalPhrase=true;
+            }
+            else {
+                for (int i=1;i<=54;i++){
+                    System.out.print("\n");
+                }
+                System.out.print ("That is not a valid phrase. Do not include numbers or special characters.");
+            }
+        }
+           answer = secretPhrase;
+    }
+  }
+  
+    public static String stringSecret(String guessedLetters, String answer){
+      String concealedWord = "";
+      int len = answer.length();
+      for (int i=0; i<len; i++){
+        String check = answer.substring(i, i+1);
+        if (guessedLetters.contains(check)){
+          // add a case if it is at the end of a word so that the space is greater affter
+          concealedWord += check + " ";
+        }
+        else if (!check.equals(" ")){
+          concealedWord += "_ ";
+        }
+        else{
+          concealedWord += "  ";
+        }
+      }
+      System.out.print(concealedWord);
+      return concealedWord;
+  }
+  
+    public static void hangmanPrint(int lives){
+        if (lives==7){
+            //prints hanger w/ 7 lives
+            System.out.print("\n\n----------\n|\t|\n|\n|\n|\n|\n|\n|\n--------\n\n");
+        }
+        else if (lives==6){
+            System.out.print("\n----------\n|\t|\n|\tO\n|\n|\n|\n|\n|\n--------\n\n");
+        }
+        else if (lives==5){
+            System.out.print("\n----------\n|\t|\n|\tO\n|\t|\n|\n|\n|\n|\n--------\n\n");
+        }
+        else if (lives==4){
+            System.out.print("\n----------\n|\t|\n|\tO\n|      /|\n|\n|\n|\n|\n--------\n\n");
+        }
+        else if (lives==3){
+            System.out.print("\n----------\n|\t|\n|\tO\n|      /|\\\n|\n|\n|\n|\n--------\n\n");
+        }
+        else if (lives==2){
+            System.out.print("\n----------\n|\t|\n|\tO\n|      /|\\\n|      /\n|\n|\n|\n--------\n\n");
+        }
+        else if (lives==1){
+            System.out.print("\n----------\n|\t|\n|\tO\n|      /|\\\n|      / \\\n|\n|\n|\n--------\n\n");
+        }
+        else if (lives==0){
+            System.out.print("\n----------\n|\t|\n|\tx\n|      /|\\\n|      / \\\n|\n|\n|\n--------\n\n"); 
+        }
+    }
+  
+    public static boolean correct(String guess, String answer, int len){
+        for(int i = 0; i < len; i++){
+            if(answer.substring(i,i+1).equals(guess)){
+                return true;
+            }
+        }
+        return false;
+    }
+} 
+
